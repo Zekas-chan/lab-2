@@ -9,12 +9,12 @@ import java.util.Random;
  */
 public class Lab2 {
 	// levers
-	int arraySizeK = 1;
-	boolean useRandomSeed = false;
+	int arraySizeK = 1; // min 1
+	boolean useRandomSeed = true;
 	int fixedSeed = 12;
-	
+
 	// levers part1-2
-	int arrayK = 1;
+	int arrayK = 1; // min 1
 
 	// useful globals
 	Random r;
@@ -23,6 +23,10 @@ public class Lab2 {
 	int incrementalAlgCount;
 	int divideAndConquerAlgCount;
 	int divideAndConquerNlogN;
+	int divideAndConquerLinearCount;
+
+	// prototyping
+	int divideAndConquerLinearIterativeCount;
 
 	public Lab2() {
 	}
@@ -86,45 +90,47 @@ public class Lab2 {
 
 		return intArr;
 	}
-	
-	
-	int[] generateDataSetPart1_2(){
+
+	int[] generateDataSetPart1_2() {
+		if (useRandomSeed) {
+			this.r = new Random(System.currentTimeMillis());
+		} else {
+			this.r = new Random(fixedSeed);
+		}
+
 		int knownLeft = 1;
 		int knownRight = 50;
-		
+
 		boolean knownLeftPlaced = true;
 		boolean knownRightPlaced = true;
-		
+
 		int[] data = new int[(int) Math.pow(2, arrayK)];
-		
+
 //		for(int i = 0; i < data.length; i++) {
 //			data[i] = n;
 //			n++;
 //		}
-		
-		this.r = new Random(fixedSeed+445);
-		
-		while (true) {
-			int choice = r.nextInt(data.length);
-			if (data[choice] == 0 && knownLeftPlaced) {
-				data[choice] = knownLeft;
-				knownLeftPlaced = false;
-			} else if (data[choice] == 0 && knownRightPlaced) {
-				data[choice] = knownRight;
-				knownRightPlaced = false;
-			}else if (!knownRightPlaced && !knownLeftPlaced) {
-				break;
-			}
+
+//		while (true) {
+//			int choice = r.nextInt(data.length);
+//			if (data[choice] == 0 && knownLeftPlaced) {
+//				data[choice] = knownLeft;
+//				knownLeftPlaced = false;
+//			} else if (data[choice] == 0 && knownRightPlaced) {
+//				data[choice] = knownRight;
+//				knownRightPlaced = false;
+//			}else if (!knownRightPlaced && !knownLeftPlaced) {
+//				break;
+//			}
+//		}
+
+		for (int i = 0; i < data.length; i++) {
+//			if (data[i] != 0) {
+//				continue;
+//			}
+			data[i] = 1 + r.nextInt(50);
 		}
-		
-		for(int i = 0; i < data.length; i++) {
-			if(data[i] != 0) {
-				continue;
-			}
-			data[i] = 1 + r.nextInt(15);
-		}
-		
-		
+
 		return data;
 	}
 
@@ -169,37 +175,78 @@ public class Lab2 {
 		}
 	}
 
-
-
-	
 	/*
 	 * 
 	 */
 	public int[] divideAndConquer(int[] arr) {
-        if (arr.length == 3) {
-            divideAndConquerAlgCount++;
-            return sort(arr);
-        }
-        else {
-            int[] arr1 = new int[arr.length/2];
-            int[] arr2 = new int[arr.length/2];
-            System.arraycopy(arr, 0, arr1, 0, arr.length/2);
-            System.arraycopy(arr, arr.length/2, arr2, 0, arr.length/2);
-            int[] arr_1 = divideAndConquer(arr1);
-            int[] arr_2 = divideAndConquer(arr2);
-            divideAndConquerAlgCount++;
-            divideAndConquerAlgCount++;
-            int[] finalArr = new int[] {arr_1[0], arr_1[1], arr_1[2], arr_2[0], arr_2[1], arr_2[2]};
-            divideAndConquerAlgCount++;
-            finalArr = sort(finalArr);
-            divideAndConquerAlgCount++;
-            divideAndConquerAlgCount++;
-            return new int[] {finalArr[0], finalArr[1], finalArr[2]};
-        }
-    }
-	
+		divideAndConquerAlgCount++;
+		if (arr.length == 3) {
+			return sort(arr);
+		} else {
+			//create array objects (not an event)
+			int[] arr1 = new int[arr.length / 2];
+			int[] arr2 = new int[arr.length / 2];
+			
+			//split into two arrays (event)
+			divideAndConquerAlgCount++;
+			System.arraycopy(arr, 0, arr1, 0, arr.length / 2);
+			System.arraycopy(arr, arr.length / 2, arr2, 0, arr.length / 2);
+			
+			//input array was >2, recurse (event)
+			divideAndConquerAlgCount++;
+			divideAndConquerAlgCount++;
+			int[] arr_1 = divideAndConquer(arr1);
+			int[] arr_2 = divideAndConquer(arr2);
+			
+			//put lowest of left and right into finalarr (event)
+			int[] finalArr = new int[] { arr_1[0], arr_1[1], arr_1[2], arr_2[0], arr_2[1], arr_2[2] };
+			divideAndConquerAlgCount++;
+			
+			//sort final array (not an event)
+			finalArr = sort(finalArr);
+//			divideAndConquerAlgCount++;
+			
+			//return (event)
+			divideAndConquerAlgCount++;
+			return new int[] { finalArr[0], finalArr[1], finalArr[2] };
+		}
+	}
+
 	public int divideAndConquerNlogN(int[] arr) {
-		divideAndConquerNlogN++; //belongs to the if
+		
+		//base case return (event)
+		divideAndConquerNlogN++; // belongs to the if
+		if (arr.length == 2) {
+			return arr[1] / arr[0];
+		}
+		
+		//implementation data init (not an event)
+		int half = arr.length / 2;
+		int[] left = new int[half];
+		int[] right = new int[half];
+		
+		//split arrays (event)
+		System.arraycopy(arr, 0, left, 0, half);
+		System.arraycopy(arr, half, right, 0, half);
+		divideAndConquerNlogN++;
+		
+		//
+		int leftDivide = divideAndConquerNlogN(left);
+		int rightDivide = divideAndConquerNlogN(right);
+		divideAndConquerNlogN++;
+		divideAndConquerNlogN++;
+		
+		
+		int leftMin = sort(left)[0];
+		int rightMax = sort(right)[right.length - 1];
+		divideAndConquerNlogN += arr.length;
+		int maxDivide = sort(new int[] { leftDivide, rightDivide, rightMax / leftMin })[2];
+		divideAndConquerNlogN++;
+		return maxDivide;
+	}
+
+	public int divideAndConquerLinear(int[] arr) {
+        divideAndConquerLinearCount++; //belongs to the if
         if (arr.length == 2) {
             return arr[1]/arr[0];
         }
@@ -208,22 +255,50 @@ public class Lab2 {
         int[] right = new int[half];
         System.arraycopy(arr, 0, left, 0, half);
         System.arraycopy(arr, half, right, 0, half);
-        divideAndConquerNlogN++;
-        int leftDivide = divideAndConquerNlogN(left); 
-        int rightDivide = divideAndConquerNlogN(right);
-        divideAndConquerNlogN++;
-        divideAndConquerNlogN++;
-        int leftMin = sort(left)[0];
-        int rightMax = sort(right)[right.length-1];
-        divideAndConquerNlogN += arr.length;
-        int maxDivide = sort(new int[] {leftDivide, rightDivide, rightMax/leftMin})[2];
-        divideAndConquerNlogN++;
+        divideAndConquerLinearCount++;
+        int[] sortedLeft = sort(left);
+        int[]sortedRight = sort(right);
+        int leftMin = sortedLeft[0];
+        int rightMin = sortedRight[0];
+        int leftMax = sortedLeft[left.length-1];
+        int rightMax = sortedRight[right.length-1];
+        divideAndConquerLinearCount++; //belongs to the if
+        if(leftMin < rightMin && leftMax < rightMax) {
+            int max = leftMin > rightMax ? leftMin : rightMax;
+            return rightMax/leftMin;
+        }
+        int leftDivide = divideAndConquerLinear(left); 
+        int rightDivide = divideAndConquerLinear(right);
+        divideAndConquerLinearCount++;
+        int maxDivide = sort(new int[] {leftDivide, rightDivide})[1];
+        divideAndConquerLinearCount++;
         return maxDivide;
     }
-	
-//	public int divideAndConquerLinear(int[] arr) {
-//		
-//	}
+
+	public int divideAndConquerLinearIterative(int[] arr) {
+		int min = Integer.MAX_VALUE;
+		int max = 0;
+		int indexOfMax = 0;
+
+		for (int i = 1; i < arr.length; i++) {
+			divideAndConquerLinearIterativeCount++;
+			divideAndConquerLinearIterativeCount++;
+			if (max < arr[i]) {
+				max = arr[i];
+				indexOfMax = i;
+			}
+		}
+
+		for (int i = 0; i < indexOfMax; i++) {
+			divideAndConquerLinearIterativeCount++;
+			divideAndConquerLinearIterativeCount++;
+			if (min > arr[i]) {
+				min = arr[i];
+			}
+		}
+
+		return max / min;
+	}
 
 	private int[] sort(int[] arr) {
 		int max = max_value(arr);
@@ -264,13 +339,12 @@ public class Lab2 {
 	public static void main(String[] args) {
 		Lab2 asdf = new Lab2();
 
-		for(int i = 0; i < 15; i++) {
+		for (int i = 0; i < 15; i++) {
 			asdf.testDivideAndConquerAlgNlogN();
 			System.out.print("\n");
 			asdf.arrayK++;
 		}
 
-		
 //		asdf.testIncrementalAlgv2();
 //		System.out.print("\n");
 //		
@@ -283,7 +357,6 @@ public class Lab2 {
 //		asdf.testDivideAndConquerAlgLinear();
 //		System.out.print("\n");
 
-		
 	}
 
 	void testIncrementalAlgv2() {
@@ -303,7 +376,7 @@ public class Lab2 {
 	void testDivideAndConquerAlg() {
 		System.out.println("\nTesting Divide and Conquer Algorithm: ");
 		int[] test = generateDataSet();
-		
+
 		int[] result = divideAndConquer(test);
 
 		for (int i : result) {
@@ -313,44 +386,68 @@ public class Lab2 {
 		System.out.println("Executed in " + divideAndConquerAlgCount);
 		divideAndConquerAlgCount = 0;
 	}
-	
+
 	void testDivideAndConquerAlgNlogN() {
-		System.out.println("Testing Divide and Conquer (N log n version)");
-		
-		System.out.println("Input: ");
 		int[] test = generateDataSetPart1_2();
-//		for(int i : test) {
-//			System.out.print(i+", ");
-//		}
-		System.out.println("Input used to be here.");
+		System.out.println("Testing Divide and Conquer (N log n version)");
+		System.out.println("Number of elements: " + test.length);
+		System.out.println("Input: ");
 		
-		
+		if (test.length > 32) {
+			System.out.print("Input is too large to display.");
+		} else {
+			for (int i : test) {
+				System.out.print(i + ", ");
+			}
+		}
+//		System.out.println("Input used to be here.");
+
 		int result = divideAndConquerNlogN(test);
 
-		
-		System.out.print("\nFunction returned: "+result);
-		System.out.println("\nNumber of elements: " + test.length);
+		System.out.println("\nFunction returned: " + result);
 		System.out.println("Executed in " + divideAndConquerNlogN);
 		divideAndConquerNlogN = 0;
 	}
-	
+
 	void testDivideAndConquerAlgLinear() {
-		System.out.println("Testing Divide and Conquer (Linear version)");
-		
-		System.out.println("Input: ");
 		int[] test = generateDataSetPart1_2();
-		for(int i : test) {
-			System.out.print(i+", ");
+		System.out.println("Testing Divide and Conquer (Linear version)");
+		System.out.println("Number of elements: " + test.length);
+		System.out.print("Input: \n[");
+		
+		if (test.length > 32) {
+			System.out.print("Input is too large to display.");
+		} else {
+			for (int i : test) {
+				System.out.print(i + ", ");
+			}
 		}
-		
-		
+		System.out.println("]");
+
 		int result = divideAndConquerLinear(test);
 
+		System.out.println("\nFunction returned: " + result);
 		
-		System.out.print("\nFunction returned: "+result);
-		System.out.println("\nNumber of elements: " + test.length);
 		System.out.println("Executed in " + divideAndConquerLinearCount);
 		divideAndConquerLinearCount = 0;
+	}
+
+	void testDivideAndConquerAlgLinearIterative() {
+		int[] test = generateDataSetPart1_2();
+		System.out.println("Testing Divide and Conquer (Linear iterative version)");
+
+		System.out.println("Input: ");
+		
+		for (int i : test) {
+			System.out.print(i + ", ");
+		}
+
+		int result = divideAndConquerLinearIterative(test);
+
+		System.out.print("\nFunction returned: " + result);
+		System.out.println("\nNumber of elements: " + test.length);
+		System.out.println("Executed in " + divideAndConquerLinearIterativeCount);
+		divideAndConquerLinearIterativeCount = 0;
 	}
 
 }
