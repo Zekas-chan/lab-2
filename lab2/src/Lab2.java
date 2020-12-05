@@ -11,7 +11,7 @@ public class Lab2 {
 	// levers
 	int arraySizeK = 1; // min 1
 	boolean useRandomSeed = true;
-	int fixedSeed = 12;
+	int fixedSeed = 8976321;
 
 	// levers part1-2
 	int arrayK = 1; // min 1
@@ -24,9 +24,6 @@ public class Lab2 {
 	int divideAndConquerAlgCount;
 	int divideAndConquerNlogN;
 	int divideAndConquerLinearCount;
-
-	// prototyping
-	int divideAndConquerLinearIterativeCount;
 
 	public Lab2() {
 	}
@@ -128,7 +125,7 @@ public class Lab2 {
 //			if (data[i] != 0) {
 //				continue;
 //			}
-			data[i] = 1 + r.nextInt(50);
+			data[i] = 1 + r.nextInt(500);
 		}
 
 		return data;
@@ -137,7 +134,7 @@ public class Lab2 {
 //	=== Part 1-1 algorithms ===
 
 	int[] incrementalAlgv2(int[] input) {
-		int x = max_value(input);
+		int x = max_value(input)[0];
 		int y = x;
 		int z = x;
 
@@ -211,7 +208,8 @@ public class Lab2 {
 			return new int[] { finalArr[0], finalArr[1], finalArr[2] };
 		}
 	}
-
+	
+	
 	public int divideAndConquerNlogN(int[] arr) {
 		
 		//base case return (event)
@@ -244,64 +242,172 @@ public class Lab2 {
 		divideAndConquerNlogN++;
 		return maxDivide;
 	}
-
-	public int divideAndConquerLinear(int[] arr) {
-        divideAndConquerLinearCount++; //belongs to the if
-        if (arr.length == 2) {
-            return arr[1]/arr[0];
+	
+	public int[] divideAndConquerLinear(int[] arr) {
+		int max;
+		int min;
+		int leftMin;
+		int leftMax;
+		int rightMin;
+		int rightMax;
+		int maxDivide;
+		divideAndConquerLinearCount++; //belongs to the if
+		if(arr.length == 2) {
+			return new int[] {arr[1]/arr[0], arr[0], arr[1]};
+		}
+		divideAndConquerLinearCount++;
+		if(arr.length % 4 == 0 && arr.length > 4) {
+			int fourth = arr.length/4;
+	        int[] leftleft = new int[fourth];
+	        int[] leftright = new int[fourth];
+	        int[] rightleft = new int[fourth];
+	        int[] rightright = new int[fourth];
+	        System.arraycopy(arr, 0, leftleft, 0, fourth);
+	        System.arraycopy(arr, fourth, leftright, 0, fourth);
+	        System.arraycopy(arr, 2*fourth, rightleft, 0, fourth);
+	        System.arraycopy(arr, 3*fourth, rightright, 0, fourth);
+	        divideAndConquerLinearCount++;
+	        
+	        
+	        
+	        
+	        int[] leftleftDivide = divideAndConquerLinear(leftleft);
+	        divideAndConquerLinearCount++;
+	        int[] leftrightDivide = divideAndConquerLinear(leftright);
+	        divideAndConquerLinearCount++;
+	        int[] rightleftDivide = divideAndConquerLinear(rightleft);
+	        divideAndConquerLinearCount++;
+	        int[] rightrightDivide = divideAndConquerLinear(rightright);
+	        divideAndConquerLinearCount++;
+	        
+	        
+	        int leftleftMin = leftleftDivide[1] < leftleftDivide[2] ? leftleftDivide[1] : leftleftDivide[2];
+	        int leftleftMax = leftleftDivide[1] > leftleftDivide[2] ? leftleftDivide[1] : leftleftDivide[2];
+	        int rightleftMin = rightleftDivide[1] < rightleftDivide[2] ? rightleftDivide[1] : rightleftDivide[2];
+	        int rightleftMax = rightleftDivide[1] > rightleftDivide[2] ? rightleftDivide[1] : rightleftDivide[2];
+	        int leftrightMin = leftrightDivide[1] < leftrightDivide[2] ? leftrightDivide[1] : leftrightDivide[2];
+	        int leftrightMax = leftrightDivide[1] > leftrightDivide[2] ? leftrightDivide[1] : leftrightDivide[2];
+	        int rightrightMin = rightrightDivide[1] < rightrightDivide[2] ? rightrightDivide[1] : rightrightDivide[2];
+	        int rightrightMax = rightrightDivide[1] > rightrightDivide[2] ? rightrightDivide[1] : rightrightDivide[2];
+	        leftMin = leftleftMin < leftrightMin ? leftleftMin : leftrightMin;
+	        leftMax = leftleftMax > leftrightMax ? leftleftMax : leftrightMax;
+	        rightMin = rightleftMin < rightrightMin ? rightleftMin : rightrightMin;
+	        rightMax = rightleftMax > rightrightMax ? rightleftMax : rightrightMax;
+	        divideAndConquerLinearCount++;
+//	        System.out.println("\nleftleftMin "+leftleftMin+", leftleftMax "+leftleftMax);
+//	        System.out.println("\nleftrightMin "+leftrightMin+", leftrightMax "+leftrightMax);
+//	        System.out.println("\nrightleftMin "+rightleftMin+", rightleftMax "+rightleftMax);
+//	        System.out.println("\nrightrightMin "+rightrightMin+", rightrightMax "+rightrightMax);
+//	        System.out.println("\nleftMin "+leftMin+", leftaMax "+leftMax);
+//	        System.out.println("\nrightMin "+rightMin+", rightMax "+rightMax);
+	        min = leftMin < rightMin ? leftMin : rightMin;
+	        max = leftMax > rightMax ? leftMax : rightMax;
+	        divideAndConquerLinearCount++;
+//	        System.out.println("\nMin "+min+" Max "+max);
+	        maxDivide = sort(new int[] {leftleftDivide[0], leftrightDivide[0],rightleftDivide[0], rightrightDivide[0], rightrightMax/rightleftMin, leftrightMax/leftleftMin, rightMax/leftMin})[6];
+		} else {
+			int half = arr.length/2;
+	        int[] left = new int[half];
+	        int[] right = new int[half];
+	        System.arraycopy(arr, 0, left, 0, half);
+	        System.arraycopy(arr, half, right, 0, half);
+	        divideAndConquerLinearCount++;
+	        int[] leftDivide = divideAndConquerLinear(left);
+	        int[] rightDivide = divideAndConquerLinear(right);
+	        divideAndConquerLinearCount++;
+	        divideAndConquerLinearCount++;
+	        leftMin = leftDivide[1] < leftDivide[2] ? leftDivide[1] : leftDivide[2];
+	        leftMax = leftDivide[1] > leftDivide[2] ? leftDivide[1] : leftDivide[2];
+	        rightMin = rightDivide[1] < rightDivide[2] ? rightDivide[1] : rightDivide[2];
+	        rightMax = rightDivide[1] > rightDivide[2] ? rightDivide[1] : rightDivide[2];
+	        divideAndConquerLinearCount++;
+	        min = leftMin < rightMin ? leftMin : rightMin;
+	        max = leftMax > rightMax ? leftMax : rightMax;
+	        divideAndConquerLinearCount++;
+	        maxDivide = sort(new int[] {leftDivide[0], rightDivide[0], rightMax/leftMin})[2];
+		}
+        divideAndConquerLinearCount++;
+        return new int[] {maxDivide, max, min};		
+	}
+	
+	
+	
+	/*
+	 * Bellas möjligtvis användbara metod
+	 */
+	int[] divide(int[] arr) {
+        // Check for if only one element
+        if(arr.length == 1) {
+            return new int[] {arr[0], arr[0], 1};
         }
+        
+        // Separate the array into two
         int half = arr.length/2;
         int[] left = new int[half];
         int[] right = new int[half];
         System.arraycopy(arr, 0, left, 0, half);
-        System.arraycopy(arr, half, right, 0, half);
-        divideAndConquerLinearCount++;
-        int[] sortedLeft = sort(left);
-        int[]sortedRight = sort(right);
-        int leftMin = sortedLeft[0];
-        int rightMin = sortedRight[0];
-        int leftMax = sortedLeft[left.length-1];
-        int rightMax = sortedRight[right.length-1];
-        divideAndConquerLinearCount++; //belongs to the if
-        if(leftMin < rightMin && leftMax < rightMax) {
-            int max = leftMin > rightMax ? leftMin : rightMax;
-            return rightMax/leftMin;
+        System.arraycopy(arr, half, right, 0, half );
+        
+        // The recursive part
+        int[] newLeft = divide(left);
+        int[] newRight = divide(right);
+        
+        //Create an array that is to be returned
+        int[] array= new int[3];
+        
+        // Check for min
+        if(newLeft[0] < newRight[0]) {
+            array[0] = newLeft[0]; 
+        } else {
+            array[0] = newRight[0]; 
         }
-        int leftDivide = divideAndConquerLinear(left); 
-        int rightDivide = divideAndConquerLinear(right);
-        divideAndConquerLinearCount++;
-        int maxDivide = sort(new int[] {leftDivide, rightDivide})[1];
-        divideAndConquerLinearCount++;
-        return maxDivide;
+        
+        // Check for max
+        if(newLeft[1] > newRight[1]) {
+            array[1] = newLeft[1]; 
+        } else {
+            array[1] = newRight[1]; 
+        }
+        
+        // input max/min
+        array[2] = array[1]/array[0];
+        
+        // Test to see, delete later ~v
+        System.out.print("\nMin:\t"     + array[0]);
+        System.out.print("\nMax:\t"     + array[1]);
+        System.out.println("\nKvot:\t"     + array[2]);
+        return array;
+    }
+	
+	int[] divide2(int[] arr) {
+        // Check for if only one element
+        if(arr.length == 1) {
+            // Return end of orgin Array
+            return new int[] {arr[0], arr[0], 1};
+        }
+
+        // Create a array copy without first value of array
+        int[] arr1 = new int[arr.length-1];
+        System.arraycopy(arr, 1, arr1, 0, arr.length-1);
+
+        // The recursive part
+        int[] arrReturn = divide(arr1);
+
+        // For loop to check each division
+        // if better max is found then it will be returned
+        // else, old value will be returned
+        for(int i : arr1) {
+            if(i/arr[0] > arrReturn[2]) {
+                arrReturn[0] = arr[0];
+                arrReturn[1] = i;
+                arrReturn[2] = i/arr[0];
+            }
+        }
+        return arrReturn;
     }
 
-	public int divideAndConquerLinearIterative(int[] arr) {
-		int min = Integer.MAX_VALUE;
-		int max = 0;
-		int indexOfMax = 0;
-
-		for (int i = 1; i < arr.length; i++) {
-			divideAndConquerLinearIterativeCount++;
-			divideAndConquerLinearIterativeCount++;
-			if (max < arr[i]) {
-				max = arr[i];
-				indexOfMax = i;
-			}
-		}
-
-		for (int i = 0; i < indexOfMax; i++) {
-			divideAndConquerLinearIterativeCount++;
-			divideAndConquerLinearIterativeCount++;
-			if (min > arr[i]) {
-				min = arr[i];
-			}
-		}
-
-		return max / min;
-	}
-
 	private int[] sort(int[] arr) {
-		int max = max_value(arr);
+		int max = max_value(arr)[0];
 		int n = arr.length;
 
 		int output[] = new int[n];
@@ -327,22 +433,45 @@ public class Lab2 {
 	 * @param nums Array med heltal
 	 * @return Det största heltalet i arrayen
 	 */
-	int max_value(int[] nums) {
+	int[] max_value(int[] nums) {
 		int max_value = 0;
-		for (int i = 0; i < nums.length; i++)
-			if (nums[i] > max_value)
+		int index = 0;
+		int execTime = 0;
+		for (int i = 0; i < nums.length; i++) {
+			execTime++;
+			if (nums[i] > max_value) {
 				max_value = nums[i];
-//        System.out.println("Max value found: "+max_value);
-		return max_value;
+				index = i;
+			}
+		}
+		return new int[] {max_value, index, execTime};
 	}
+	
+	int[] min_value(int[] nums) {
+		int min_value = Integer.MAX_VALUE;
+		int index = 0;
+		int execTime = 0;
+		for (int i = 0; i < nums.length; i++) {
+			execTime++;
+			if (nums[i] < min_value) {
+				min_value = nums[i];
+				index = i;
+			}
+		}
+		return new int[] {min_value, index, execTime};
+	}
+	
 
 	public static void main(String[] args) {
 		Lab2 asdf = new Lab2();
-
+		
+		
 		for (int i = 0; i < 15; i++) {
-			asdf.testDivideAndConquerAlgNlogN();
+//			asdf.testDivideAndConquerAlgLinear();
+//			System.out.print("\n");
+			asdf.testDivideAndConquerAlg();
 			System.out.print("\n");
-			asdf.arrayK++;
+			asdf.arraySizeK++;
 		}
 
 //		asdf.testIncrementalAlgv2();
@@ -389,7 +518,7 @@ public class Lab2 {
 
 	void testDivideAndConquerAlgNlogN() {
 		int[] test = generateDataSetPart1_2();
-		System.out.println("Testing Divide and Conquer (N log n version)");
+		System.out.println("Testing Divide and Conquer (n log n version)");
 		System.out.println("Number of elements: " + test.length);
 		System.out.println("Input: ");
 		
@@ -401,7 +530,7 @@ public class Lab2 {
 			}
 		}
 //		System.out.println("Input used to be here.");
-
+		
 		int result = divideAndConquerNlogN(test);
 
 		System.out.println("\nFunction returned: " + result);
@@ -418,36 +547,25 @@ public class Lab2 {
 		if (test.length > 32) {
 			System.out.print("Input is too large to display.");
 		} else {
-			for (int i : test) {
-				System.out.print(i + ", ");
+			for (int i = 0; i < test.length; i++) {
+				System.out.print(test[i]);
+				if(i < test.length-1) {
+					System.out.print(", ");
+				}
 			}
 		}
 		System.out.println("]");
 
-		int result = divideAndConquerLinear(test);
-
-		System.out.println("\nFunction returned: " + result);
+		int result = divideAndConquerLinear(test)[0];
 		
+		int verify = divideAndConquerNlogN(test);
+
+		System.out.println("Function returned: " + result);
 		System.out.println("Executed in " + divideAndConquerLinearCount);
 		divideAndConquerLinearCount = 0;
-	}
-
-	void testDivideAndConquerAlgLinearIterative() {
-		int[] test = generateDataSetPart1_2();
-		System.out.println("Testing Divide and Conquer (Linear iterative version)");
-
-		System.out.println("Input: ");
-		
-		for (int i : test) {
-			System.out.print(i + ", ");
+		if(result != verify) {
+			System.out.println("\n!!!:\nMismatch: Result was "+result+" but N log N calculated it as: "+verify);
 		}
-
-		int result = divideAndConquerLinearIterative(test);
-
-		System.out.print("\nFunction returned: " + result);
-		System.out.println("\nNumber of elements: " + test.length);
-		System.out.println("Executed in " + divideAndConquerLinearIterativeCount);
-		divideAndConquerLinearIterativeCount = 0;
 	}
 
 }
