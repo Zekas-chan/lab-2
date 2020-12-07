@@ -9,12 +9,12 @@ import java.util.Random;
  */
 public class Lab2 {
 	// levers
-	int arraySizeK = 1; // min 1
+	int arraySizeK = 4; // min 1
 	boolean useRandomSeed = true;
 	int fixedSeed = 8976321;
 
 	// levers part1-2
-	int arrayK = 1; // min 1
+	int arrayK = 4; // min 1
 
 	// useful globals
 	Random r;
@@ -95,36 +95,9 @@ public class Lab2 {
 			this.r = new Random(fixedSeed);
 		}
 
-		int knownLeft = 1;
-		int knownRight = 50;
-
-		boolean knownLeftPlaced = true;
-		boolean knownRightPlaced = true;
-
 		int[] data = new int[(int) Math.pow(2, arrayK)];
 
-//		for(int i = 0; i < data.length; i++) {
-//			data[i] = n;
-//			n++;
-//		}
-
-//		while (true) {
-//			int choice = r.nextInt(data.length);
-//			if (data[choice] == 0 && knownLeftPlaced) {
-//				data[choice] = knownLeft;
-//				knownLeftPlaced = false;
-//			} else if (data[choice] == 0 && knownRightPlaced) {
-//				data[choice] = knownRight;
-//				knownRightPlaced = false;
-//			}else if (!knownRightPlaced && !knownLeftPlaced) {
-//				break;
-//			}
-//		}
-
 		for (int i = 0; i < data.length; i++) {
-//			if (data[i] != 0) {
-//				continue;
-//			}
 			data[i] = 1 + r.nextInt(500);
 		}
 
@@ -134,27 +107,100 @@ public class Lab2 {
 //	=== Part 1-1 algorithms ===
 
 	int[] incrementalAlgv2(int[] input) {
-		int x = max_value(input)[0];
-		int y = x;
-		int z = x;
-
-		for (int i : input) {
-//			incrementalAlgCount++;
-			if (boolCounter(i, z)) {
-				if (boolCounter(i, x)) {
+		incrementalAlgCount++;
+		int[] arr = sort(new int[] {input[0], input[1], input[2]});
+		if(input.length == 3) {
+			return arr;
+		}//base case
+		
+		//increment
+		int x = arr[0];
+		int y = arr[1];
+		int z = arr[2];
+		
+		for (int i = 3; i < input.length; i++) {
+			if (boolCounter(input[i], z)) {
+				if (boolCounter(input[i], x)) {
 					z = y;
 					y = x;
-					x = i;
-				} else if (boolCounter(i, y)) {
+					x = input[i];
+				} else if (boolCounter(input[i], y)) {
 					z = y;
-					y = i;
+					y = input[i];
 				} else {
-					z = i;
+					z = input[i];
 				}
 			}
 		}
 		return new int[] { x, y, z };
 	}
+	
+//  === Part 1-1 algorithms ===
+
+  int[] incrementalAlgv3(int[] input) {
+      int x;
+      int y;
+      int z;
+
+      if(input.length == 3) {
+          if(input[0] < input[1] && input[0] < input[2]) {
+              x = input[0];
+              if(input[1]<input[2]) {
+                  y=input[1];
+                  z=input[2];
+              } else {
+                  y=input[2];
+                  z=input[1];
+              }
+          }
+
+          else if(input[1] < input[0] && input[1] < input[2]) {
+              x = input[1];
+              if(input[0]<input[2]) {
+                  y=input[0];
+                  z=input[2];
+              } else {
+                  y=input[2];
+                  z=input[0];
+              }
+
+          } else {
+              x = input[2];
+              if(input[0]<input[1]) {
+                  y=input[0];
+                  z=input[1];
+              } else {
+                  y=input[1];
+                  z=input[0];
+              }
+
+
+          }
+          return new int[] { x, y, z };
+      } //end base case
+
+      int[] inputCopy = new int[input.length-1];
+      System.arraycopy(input, 1, inputCopy, 0, input.length-1);
+
+      int[] arr = incrementalAlgv2(inputCopy);
+      x = arr[0];
+      y = arr[1];
+      z = arr[2];
+
+      if (boolCounter(input[0], z)) {
+          if (boolCounter(input[0], x)) {
+              z = y;
+              y = x;
+              x = input[0];
+          } else if (boolCounter(input[0], y)) {
+              z = y;
+              y = input[0];
+          } else {
+              z = input[0];
+          }
+      }
+      return new int[] { x, y, z };
+  }
 
 	/**
 	 * Hjälpmetod Räknar upp antalet jämförelser för inkrementella algoritmen
@@ -267,10 +313,6 @@ public class Lab2 {
 	        System.arraycopy(arr, 2*fourth, rightleft, 0, fourth);
 	        System.arraycopy(arr, 3*fourth, rightright, 0, fourth);
 	        divideAndConquerLinearCount++;
-	        
-	        
-	        
-	        
 	        int[] leftleftDivide = divideAndConquerLinear(leftleft);
 	        divideAndConquerLinearCount++;
 	        int[] leftrightDivide = divideAndConquerLinear(leftright);
@@ -279,8 +321,6 @@ public class Lab2 {
 	        divideAndConquerLinearCount++;
 	        int[] rightrightDivide = divideAndConquerLinear(rightright);
 	        divideAndConquerLinearCount++;
-	        
-	        
 	        int leftleftMin = leftleftDivide[1] < leftleftDivide[2] ? leftleftDivide[1] : leftleftDivide[2];
 	        int leftleftMax = leftleftDivide[1] > leftleftDivide[2] ? leftleftDivide[1] : leftleftDivide[2];
 	        int rightleftMin = rightleftDivide[1] < rightleftDivide[2] ? rightleftDivide[1] : rightleftDivide[2];
@@ -294,16 +334,9 @@ public class Lab2 {
 	        rightMin = rightleftMin < rightrightMin ? rightleftMin : rightrightMin;
 	        rightMax = rightleftMax > rightrightMax ? rightleftMax : rightrightMax;
 	        divideAndConquerLinearCount++;
-//	        System.out.println("\nleftleftMin "+leftleftMin+", leftleftMax "+leftleftMax);
-//	        System.out.println("\nleftrightMin "+leftrightMin+", leftrightMax "+leftrightMax);
-//	        System.out.println("\nrightleftMin "+rightleftMin+", rightleftMax "+rightleftMax);
-//	        System.out.println("\nrightrightMin "+rightrightMin+", rightrightMax "+rightrightMax);
-//	        System.out.println("\nleftMin "+leftMin+", leftaMax "+leftMax);
-//	        System.out.println("\nrightMin "+rightMin+", rightMax "+rightMax);
 	        min = leftMin < rightMin ? leftMin : rightMin;
 	        max = leftMax > rightMax ? leftMax : rightMax;
 	        divideAndConquerLinearCount++;
-//	        System.out.println("\nMin "+min+" Max "+max);
 	        maxDivide = sort(new int[] {leftleftDivide[0], leftrightDivide[0],rightleftDivide[0], rightrightDivide[0], rightrightMax/rightleftMin, leftrightMax/leftleftMin, rightMax/leftMin})[6];
 		} else {
 			int half = arr.length/2;
@@ -465,34 +498,51 @@ public class Lab2 {
 	public static void main(String[] args) {
 		Lab2 asdf = new Lab2();
 		
-		
-		for (int i = 0; i < 15; i++) {
-//			asdf.testDivideAndConquerAlgLinear();
+//		for (int i = 0; i < 15; i++) {
+//			asdf.testIncrementalAlgv2();
 //			System.out.print("\n");
-			asdf.testDivideAndConquerAlg();
-			System.out.print("\n");
-			asdf.arraySizeK++;
-		}
+//			asdf.arraySizeK++;
+//		}
 
-//		asdf.testIncrementalAlgv2();
-//		System.out.print("\n");
-//		
-//		asdf.testDivideAndConquerAlg();
-//		System.out.print("\n");
-//		
-//		asdf.testDivideAndConquerAlgNlogN();
-//		System.out.print("\n");
-//
-//		asdf.testDivideAndConquerAlgLinear();
-//		System.out.print("\n");
+		System.out.println("======PART 1-1=====");
+		asdf.testIncrementalAlg();
+		System.out.print("\n");
+		
+		asdf.testDivideAndConquerAlg();
+		System.out.print("\n");
+		
+		System.out.println("\n======PART 1-2=====\n");
+		
+		asdf.testDivideAndConquerAlgNlogN();
+		System.out.print("\n");
+
+		asdf.testDivideAndConquerAlgLinear();
+		System.out.print("\n");
 
 	}
 
-	void testIncrementalAlgv2() {
-		System.out.println("\nTesting Incremental Algorithm v2: ");
+	void testIncrementalAlg() {
+		System.out.println("\nTesting Incremental Algorithm: ");
 		int[] test = generateDataSet();
-		int[] result = incrementalAlgv2(test);
-
+		//print input
+		System.out.print("Input: \n[");
+		if (test.length > 32) {
+			System.out.print("Input is too large to display.");
+		} else {
+			for (int i = 0; i < test.length; i++) {
+				System.out.print(test[i]);
+				if(i < test.length-1) {
+					System.out.print(", ");
+				}
+			}
+		}
+		System.out.println("]");
+		
+		
+		
+		int[] result = incrementalAlgv3(test);
+		
+		System.out.println("Output:");
 		for (int i : result) {
 			System.out.print(i + ", ");
 		}
@@ -505,9 +555,23 @@ public class Lab2 {
 	void testDivideAndConquerAlg() {
 		System.out.println("\nTesting Divide and Conquer Algorithm: ");
 		int[] test = generateDataSet();
-
+		//print input
+		System.out.print("Input: \n[");
+		if (test.length > 32) {
+			System.out.print("Input is too large to display.");
+		} else {
+			for (int i = 0; i < test.length; i++) {
+				System.out.print(test[i]);
+				if(i < test.length-1) {
+					System.out.print(", ");
+				}
+			}
+		}
+		System.out.println("]");
+		
+		
 		int[] result = divideAndConquer(test);
-
+		System.out.println("Output:");
 		for (int i : result) {
 			System.out.print(i + ", ");
 		}
@@ -520,20 +584,24 @@ public class Lab2 {
 		int[] test = generateDataSetPart1_2();
 		System.out.println("Testing Divide and Conquer (n log n version)");
 		System.out.println("Number of elements: " + test.length);
-		System.out.println("Input: ");
 		
+		//print input
+		System.out.print("Input: \n[");
 		if (test.length > 32) {
 			System.out.print("Input is too large to display.");
 		} else {
-			for (int i : test) {
-				System.out.print(i + ", ");
+			for (int i = 0; i < test.length; i++) {
+				System.out.print(test[i]);
+				if(i < test.length-1) {
+					System.out.print(", ");
+				}
 			}
 		}
-//		System.out.println("Input used to be here.");
+		System.out.println("]");
 		
 		int result = divideAndConquerNlogN(test);
 
-		System.out.println("\nFunction returned: " + result);
+		System.out.println("Function returned: " + result);
 		System.out.println("Executed in " + divideAndConquerNlogN);
 		divideAndConquerNlogN = 0;
 	}
@@ -542,8 +610,9 @@ public class Lab2 {
 		int[] test = generateDataSetPart1_2();
 		System.out.println("Testing Divide and Conquer (Linear version)");
 		System.out.println("Number of elements: " + test.length);
-		System.out.print("Input: \n[");
 		
+		//print input
+		System.out.print("Input: \n[");
 		if (test.length > 32) {
 			System.out.print("Input is too large to display.");
 		} else {
