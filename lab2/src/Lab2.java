@@ -23,7 +23,7 @@ public class Lab2 {
 
 	// analysis variables
 	int divideAndConquerNlogN;
-	int divideAndConquerLinearCount;
+	int incrementalLinearCount;
 
 	public Lab2() {
 		String pattern = "##0.##";
@@ -45,15 +45,20 @@ public class Lab2 {
 			r = new Random(fixedSeed);
 		}
 
-		for (int i = 0; i < arr.length; i++) {
-			do {
-				arr[i] = r.nextInt(5) + r.nextDouble();
-				if (negativeNumbersAllowed) {
-					arr[i] -= 2.5;
-				}
-			} while (arr[i] == 0);
+		if (negativeNumbersAllowed) {
+			for (int i = 0; i < arr.length; i++) {
+				do {
+					arr[i] = r.nextInt(10) + r.nextDouble();
+					arr[i] -= 5;
+				} while (arr[i] == 0);
+			}
+		} else {
+			for (int i = 0; i < arr.length; i++) {
+				do {
+					arr[i] = r.nextInt(5) + r.nextDouble();
+				} while (arr[i] == 0);
+			}
 		}
-
 		return arr;
 	}
 
@@ -62,96 +67,155 @@ public class Lab2 {
 	 * 
 	 * Får en inkrementell lösning se ut som productFinderLinear (om den konverteras
 	 * till ett rekursiv version)?
+	 * 
+	 * 
 	 */
-	public double[] divideAndConquer(double[] arr) {
-        if (arr.length == 2) {
-            return new double[] { arr[0] * arr[1], arr[0], arr[1] };
-        }
-        int half = arr.length / 2;
-        double[] left = new double[half];
-        double[] right = new double[half];
-        System.arraycopy(arr, 0, left, 0, half);
-        System.arraycopy(arr, half, right, 0, half);
-        System.out.println("\nLeft");
-        for(double i:left) {
-            System.out.print(i+", ");
-        }
-        System.out.println("\nRight");
-        for(double i:right) {
-            System.out.print(i+", ");
-        }
-        double[] leftProduct = divideAndConquer(left);
-        double[] rightProduct = divideAndConquer(right);
-        System.out.println("\nLeftDivide\n"+leftProduct[0]+" , "+leftProduct[1]+" , "+leftProduct[2]);
-        System.out.println("\nRightDivide\n"+rightProduct[0]+" , "+rightProduct[1]+" , "+rightProduct[2]);
-        if (leftProduct[0] < 0 && rightProduct[0] > 0) {
-            double element = leftProduct[0] < 0 ? leftProduct[1] : leftProduct[0];
-            return new double[] {rightProduct[0] * element, leftProduct[1], rightProduct[2]};
-        }
-        if(rightProduct[0] < 0 && leftProduct[0] > 0) {
-            double element = rightProduct[0] < 0 ? rightProduct[1] : rightProduct[0];
-            return new double[] {leftProduct[0] * element, leftProduct[1], rightProduct[2]};
-        }
-        return new double[] {rightProduct[0]*leftProduct[0], leftProduct[1], rightProduct[2]};
-
-    }
-
-	/*
-	 * Must be converted to a recursive version.
-	 */
-	double productFinderLinear(double[] arr) {
-		double maxProduct = 1;
-		double curProduct = 1;
-
-		for (double d : arr) {
-			divideAndConquerLinearCount++;
-			if (d < 1) {
-				divideAndConquerLinearCount++;
-				if (curProduct > maxProduct) {
-					maxProduct = curProduct;
-				}
-				curProduct = 1;
-				continue;
-			}
-			curProduct *= d;
-			divideAndConquerLinearCount++;
+	public double divideAndConquer(double arr[]) {
+		if (arr.length == 1 && ifcounter(1)) {
+			return arr[0];
+		}//base case
+		
+		
+		divideAndConquerNlogN++;
+		int half = arr.length / 2;
+		double[] left = new double[half];
+		double[] right = new double[half];
+		System.arraycopy(arr, 0, left, 0, half);
+		System.arraycopy(arr, half, right, 0, half);
+		//divide
+		
+		
+		double leftProduct = divideAndConquer(left);
+		divideAndConquerNlogN++;
+		double rightProduct = divideAndConquer(right);
+		divideAndConquerNlogN++;
+		double crossingProduct = crossingProduct(arr);
+		divideAndConquerNlogN += arr.length;
+		
+		divideAndConquerNlogN++;
+		if (leftProduct >= rightProduct && leftProduct >= crossingProduct) {
+			return leftProduct;
+		} else if (rightProduct >= leftProduct && rightProduct >= crossingProduct) {
+			return rightProduct;
+		} else {
+			return crossingProduct;
 		}
-
-		double finalProduct = curProduct > maxProduct ? curProduct : maxProduct;
-		return finalProduct;
 	}
 
-	double productFinderLinearRecursive(double[] arr) {
-		if (arr.length == 2) {
-			if (arr[0] > 1 && arr[1] > 1) {
-				return arr[0] * arr[1];
-			} else if (arr[0] > 1) {
-				return arr[0];
-			} else if (arr[1] > 1) {
-				return arr[1];
-			} else {
-				double pls = arr[0] > arr[1] ? arr[0] : arr[1];
-				return pls;
+	private double crossingProduct(double arr[]) {
+		double maxProduct = 1;
+		double leftNegativeProduct = 0;
+		double leftPositiveProduct = 0;
+		double rightNegativeProduct = 0;
+		double rightPositiveProduct = 0;
+		double productL = 1;
+		double productR = 1;
+		for (int i = 0; i < arr.length / 2; i++) {
+			productL = productL * arr[((arr.length / 2) - 1) - i];
+			if (productL > leftPositiveProduct) {
+				leftPositiveProduct = productL;
+			} else if (productL < leftNegativeProduct) {
+				leftNegativeProduct = productL;
 			}
-		} // fulaste basfallet i historien
+
+			productR = productR * arr[i + ((arr.length / 2))];
+			if (productR > rightPositiveProduct) {
+				rightPositiveProduct = productR;
+			} else if (productR < rightNegativeProduct) {
+				rightNegativeProduct = productR;
+			}
+		}
+
+		maxProduct = leftNegativeProduct * rightNegativeProduct > leftPositiveProduct * rightPositiveProduct
+				? leftNegativeProduct * rightNegativeProduct
+				: leftPositiveProduct * rightPositiveProduct;
+
+		return maxProduct;
+
+	}
+
+	double[] productFinderAlgLinear(double[] arr) {
+		if (arr.length == 1 && ifcounter(2)) {
+			return new double[] { arr[0], arr[0], arr[0] };
+		} // base case
 		
-		double[] arr1 = new double[arr.length/2];
- 		double[] arr2 = new double[arr.length/2];
+		incrementalLinearCount++;
+		double[] inputCopy = new double[arr.length - 1];
+		System.arraycopy(arr, 1, inputCopy, 0, arr.length - 1);
 		
- 		System.arraycopy(arr, 0, arr1, 0, arr.length / 2);
-		System.arraycopy(arr, arr.length / 2, arr2, 0, arr.length / 2);
+		incrementalLinearCount++;
+		double[] arrd = productFinderAlgLinear(inputCopy);
 		
-		double[] arr_1 = productFinderLinearRecursive(arr1);
-		double[] arr_2 = productFinderLinearRecursive(arr1);
+		incrementalLinearCount++;
+		double curProduct = arr[0] > (arr[0] * arrd[1]) ? arr[0] : arr[0] * arrd[1];
+		double maxProduct = arrd[2];
 		
+		if (curProduct > maxProduct && ifcounter(2)) {
+			maxProduct = curProduct;
+		}
+		
+		incrementalLinearCount++;
+		return new double[] { inputCopy[0], curProduct, maxProduct };
+	}
+
+	/**
+	 * Hittar maximala subarray-produkten i en array med doubles (iterativt).
+	 * 
+	 * @param arr
+	 * @return
+	 */
+	double productFinderCheck(double[] arr) {
+		double maxProduct = arr[0];
+		double imax = arr[0];
+		double imin = arr[0];
+		for (int i = 1; i < arr.length; i++) {
+			if (arr[i] < 0) {
+				double swap = imin;
+				imin = imax;
+				imax = swap;
+			}
+			imax = arr[i] > (imax * arr[i]) ? arr[i] : (imax * arr[i]);
+			imin = arr[i] < (imin * arr[i]) ? arr[i] : (imin * arr[i]);
+			maxProduct = maxProduct > imax ? maxProduct : imax;
+		}
+
+		return maxProduct;
+	}
+	
+	boolean ifcounter(int mode) {
+		switch(mode) {
+		case 1:
+			divideAndConquerNlogN++;
+			break;
+			
+		case 2:
+			incrementalLinearCount++;
+			break;
+		}
+		return true;
 	}
 
 	public static void main(String[] args) {
 		Lab2 asdf = new Lab2();
 
 		System.out.println("\n======PART 2======");
-
-		for (int i = 0; i < 5; i++) {
+//		double[] test = asdf.generateTestArr(false);
+//		System.out.println("Input:");
+//		System.out.print("[");
+//		if (test.length > 32) {
+//			System.out.print("Input is too large to display.");
+//		} else {
+//			for (int i = 0; i < test.length; i++) {
+//				System.out.print(asdf.df.format(test[i]));
+//				if (i < test.length - 1) {
+//					System.out.print(", ");
+//				}
+//			}
+//		}
+//		System.out.println("]");
+//		
+//		asdf.productFinderAlgLinear(test);
+		for (int i = 0; i < 10; i++) {
 			asdf.testOnAlg();
 			asdf.arrayK++;
 		}
@@ -164,12 +228,12 @@ public class Lab2 {
 
 		// print testarr
 		System.out.println("Input:");
-		System.out.println("[");
+		System.out.print("[");
 		if (test.length > 32) {
 			System.out.print("Input is too large to display.");
 		} else {
 			for (int i = 0; i < test.length; i++) {
-				System.out.print(test[i]);
+				System.out.print(df.format(test[i]));
 				if (i < test.length - 1) {
 					System.out.print(", ");
 				}
@@ -178,15 +242,21 @@ public class Lab2 {
 		System.out.println("]");
 
 		// display result
-		double[] result = { algName(test) };
+		double[] result = { divideAndConquer(test) };
+		double verify = productFinderCheck(test);
 
 		System.out.println("Output:");
 		for (double i : result) {
-			System.out.print(i + ", ");
+			System.out.print(df.format(i) + ", ");
 		}
 		System.out.println("\nNumber of elements: " + test.length);
 		System.out.println("Executed in " + divideAndConquerNlogN);
 		divideAndConquerNlogN = 0;
+
+		if (result[0] != verify) {
+			System.out.println("Mismatch: Algorithm returned " + df.format(result[0]) + ", but the check returned "
+					+ df.format(verify));
+		}
 
 	}
 
@@ -210,15 +280,22 @@ public class Lab2 {
 		System.out.println("]");
 
 		// display result
-		double[] result = { productFinderLinear(test) };
+		double[] result = { productFinderAlgLinear(test)[2] };
+
+		double check = productFinderCheck(test);
 
 		System.out.println("Output:");
 		for (double i : result) {
 			System.out.print(df.format(i) + ", ");
 		}
 		System.out.println("\nNumber of elements: " + test.length);
-		System.out.println("Executed in " + divideAndConquerLinearCount);
-		divideAndConquerLinearCount = 0;
+		System.out.println("Executed in " + incrementalLinearCount);
+		incrementalLinearCount = 0;
+
+		if (check != result[0]) {
+			System.out.println("Mismatch: Algorithm returned " + df.format(result[0]) + ", but linear version found "
+					+ df.format(check));
+		}
 	}
 
 }
