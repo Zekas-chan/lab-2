@@ -9,7 +9,7 @@ import java.util.Random;
  */
 public class Lab2 {
 	// levers
-	int arraySizeK = 4; // min 1
+	int arraySizeK = 1; // min 1
 	boolean useRandomSeed = true;
 	int fixedSeed = 8976321;
 
@@ -224,6 +224,7 @@ public class Lab2 {
 	public int[] divideAndConquer(int[] arr) {
 		divideAndConquerAlgCount++;
 		if (arr.length == 3) {
+			divideAndConquerAlgCount += 3;
 			return sort(arr);
 		} else {
 			//create array objects (not an event)
@@ -498,26 +499,26 @@ public class Lab2 {
 	public static void main(String[] args) {
 		Lab2 asdf = new Lab2();
 		
-//		for (int i = 0; i < 15; i++) {
-//			asdf.testIncrementalAlgv2();
-//			System.out.print("\n");
-//			asdf.arraySizeK++;
-//		}
+		for (int i = 0; i < 10; i++) {
+			asdf.testDivideAndConquerAlg();
+			System.out.print("\n");
+			asdf.arraySizeK++;
+		}
 
-		System.out.println("======PART 1-1=====");
-		asdf.testIncrementalAlg();
-		System.out.print("\n");
-		
-		asdf.testDivideAndConquerAlg();
-		System.out.print("\n");
-		
-		System.out.println("\n======PART 1-2=====\n");
-		
-		asdf.testDivideAndConquerAlgNlogN();
-		System.out.print("\n");
-
-		asdf.testDivideAndConquerAlgLinear();
-		System.out.print("\n");
+//		System.out.println("======PART 1-1=====");
+//		asdf.testIncrementalAlg();
+//		System.out.print("\n");
+//		
+//		asdf.testDivideAndConquerAlg();
+//		System.out.print("\n");
+//		
+//		System.out.println("\n======PART 1-2=====\n");
+//		
+//		asdf.testDivideAndConquerAlgNlogN();
+//		System.out.print("\n");
+//
+//		asdf.testDivideAndConquerAlgLinear();
+//		System.out.print("\n");
 
 	}
 
