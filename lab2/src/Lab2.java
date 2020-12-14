@@ -63,11 +63,6 @@ public class Lab2 {
 	}
 
 	/*
-	 * Frågeställning: Om alla tal är <1, bör en produkt fortfarande returneras?
-	 * 
-	 * Får en inkrementell lösning se ut som productFinderLinear (om den konverteras
-	 * till ett rekursiv version)?
-	 * 
 	 * 
 	 */
 	public double divideAndConquer(double arr[]) {
@@ -136,7 +131,7 @@ public class Lab2 {
 
 	double[] productFinderAlgLinear(double[] arr) {
 		if (arr.length == 1 && ifcounter(2)) {
-			return new double[] { arr[0], arr[0], arr[0] };
+			return new double[] { arr[0], arr[0] };
 		} // base case
 		
 		incrementalLinearCount++;
@@ -147,15 +142,15 @@ public class Lab2 {
 		double[] arrd = productFinderAlgLinear(inputCopy);
 		
 		incrementalLinearCount++;
-		double curProduct = arr[0] > (arr[0] * arrd[1]) ? arr[0] : arr[0] * arrd[1];
-		double maxProduct = arrd[2];
+		double curProduct = arr[0] > (arr[0] * arrd[0]) ? arr[0] : arr[0] * arrd[0];
+		double maxProduct = arrd[1];
 		
 		if (curProduct > maxProduct && ifcounter(2)) {
 			maxProduct = curProduct;
 		}
 		
 		incrementalLinearCount++;
-		return new double[] { inputCopy[0], curProduct, maxProduct };
+		return new double[] { curProduct, maxProduct };
 	}
 
 	/**
@@ -199,26 +194,17 @@ public class Lab2 {
 		Lab2 asdf = new Lab2();
 
 		System.out.println("\n======PART 2======");
-//		double[] test = asdf.generateTestArr(false);
-//		System.out.println("Input:");
-//		System.out.print("[");
-//		if (test.length > 32) {
-//			System.out.print("Input is too large to display.");
-//		} else {
-//			for (int i = 0; i < test.length; i++) {
-//				System.out.print(asdf.df.format(test[i]));
-//				if (i < test.length - 1) {
-//					System.out.print(", ");
-//				}
-//			}
-//		}
-//		System.out.println("]");
-//		
+		
+		
+		asdf.arrayK = 3;
+		asdf.testNlogNalg();
+		
+		asdf.testOnAlg();
 //		asdf.productFinderAlgLinear(test);
-		for (int i = 0; i < 10; i++) {
-			asdf.testOnAlg();
-			asdf.arrayK++;
-		}
+//		for (int i = 0; i < 10; i++) {
+//			asdf.testOnAlg();
+//			asdf.arrayK++;
+//		}
 
 	}
 
@@ -280,7 +266,7 @@ public class Lab2 {
 		System.out.println("]");
 
 		// display result
-		double[] result = { productFinderAlgLinear(test)[2] };
+		double[] result = { productFinderAlgLinear(test)[1] };
 
 		double check = productFinderCheck(test);
 
